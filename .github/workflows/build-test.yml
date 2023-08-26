@@ -11,15 +11,14 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install MinGW C++/G++
       run: |
-        sudo apt-get update -y
-        sudo apt-get install g++ -y
+        @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+        choco install mingw -y
     - name: Compile files
       run: |
         cd build
-        g++ -c ../main.cpp -I../SFML-2.6.0/include
-        g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system -v
+        build.bat
