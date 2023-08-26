@@ -20,4 +20,8 @@ jobs:
         sudo apt-get install g++ -y
     - name: Run the file
       run: |
-        chmod +x ./build/build.sh
+        cd build
+        pwd
+        ls
+        chmod +x build.sh
+        ./build.sh
