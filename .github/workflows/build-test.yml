@@ -22,4 +22,4 @@ jobs:
       run: |
         cd build
         g++ -c ../main.cpp -I../SFML-2.6.0/include
-        g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
+        g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system -v
