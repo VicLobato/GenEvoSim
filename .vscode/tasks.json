@@ -5,7 +5,7 @@
             "label": "custom-build-run",
             "type": "shell",
             "command": "cmd",
-            "args": ["/C", "build\\debug.bat"],
+            "args": ["/C", "build\\build.bat"],
             "group": {
                 "kind": "build",
                 "isDefault": true

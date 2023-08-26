@@ -1,3 +1,5 @@
+cd build
+
 rem Build options using local SFML
 g++ -c ../main.cpp -I../SFML-2.6.0/include
 g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
@@ -16,4 +18,12 @@ set "sourceDir=..\SFML-2.6.0\bin"
 set "binDir=..\bin"
 for %%F in (%fileNames%) do (
     copy /Y "%sourceDir%\%%F" "%binDir%\"
+)
+
+rem Run the exe in the bin path
+set "folder_path=../bin"
+
+for %%i in ("%folder_path%\*.exe") do (
+    echo Running "%%~nxi"
+    call "%%i"
 )
