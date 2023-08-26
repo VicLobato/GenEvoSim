@@ -18,10 +18,8 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt-get install g++ -y
-    - name: Run the file
+    - name: Compile files
       run: |
         cd build
-        pwd
-        ls
-        chmod +x build.sh
-        ./build.sh
+        g++ -c ../main.cpp -I../SFML-2.6.0/include
+        g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
