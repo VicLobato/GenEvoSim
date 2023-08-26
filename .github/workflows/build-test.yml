@@ -16,10 +16,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install MinGW C++/G++
       run: |
-        sudo apt-get update -y
-        sudo apt-get install g++ -y
+        sudo apt-get update && sudo apt-get install g++
     - name: Compile files
       run: |
-        cd build
-        g++ -c ../main.cpp -I../SFML-2.6.0/include
-        g++ main.o -o smfl-app -L../SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system -v
+        g++ -c main.cpp -I/SFML-2.6.0/include
+        g++ main.o -o smfl-app -L/SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
