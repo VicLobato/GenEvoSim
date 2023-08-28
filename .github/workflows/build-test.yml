@@ -1,0 +1,23 @@
+name: Build test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install MinGW C++/G++
+      run: |
+        sudo apt-get update && sudo apt-get install g++
+    - name: Compile files
+      run: |
+        g++ -c main.cpp -I/SFML-2.6.0/include
+        g++ main.o -o smfl-app -L/SFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
