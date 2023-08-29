@@ -1,23 +1,23 @@
 #include <SFML/Graphics.hpp>
+#include "Screen.hpp"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    // Init
+    Screen screen(1000, 1000, "GenEvoSim");
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
+    // Main loop
+    while (screen.window.isOpen()) {
+        sf::Event event{};
+        while (screen.window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+                screen.window.close();
+            }
         }
 
-        window.clear();
-        window.draw(shape);
-        window.display();
+        screen.window.clear(sf::Color::White);
+        screen.window.display();
     }
+
     return 0;
 }
