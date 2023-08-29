@@ -4,9 +4,9 @@
 #include <cstring>
 
 class Screen {
-public:
-    bool DEBUG_MODE = false;
-    sf::RenderWindow window;
+    public:
+        bool DEBUG_MODE = false;
+        sf::RenderWindow window;
 
     Screen() = default;
     Screen(int width, int height, const char* title) {
