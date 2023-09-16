@@ -1,5 +1,15 @@
 #pragma once
 #include <SFML/Graphics.hpp> // Vector functionality
+#include <iostream> // DEBUGGING
+
+struct Shape {
+    sf::Vector3f dimensions;
+
+    Shape() = default;
+    Shape(sf::Vector3f dimensions_)
+        : dimensions{dimensions_}
+    {}
+};
 
 struct Object {
     sf::Vector3f pos;
@@ -20,8 +30,8 @@ struct Object {
     void step(float dt) {
         sf::Vector3f dis = pos - posLast; // Displacement
         posLast = pos;
-        pos = pos + dis + acc * dt * dt;
-        acc = {}; // reset acceleration
+        pos += dis + acc * (dt * dt);
+        acc = {};
     }
 
     void applyForce(sf::Vector3f force) {
@@ -37,17 +47,18 @@ struct Object {
     }
 
     sf::Vector3f getVelocity(float dt) {
-        return (pos - posLast) / dt;
+        return (pos - posLast) / (float)dt;
     }
-};
 
-struct Shape {
-    sf::Vector3f dimensions;
+    void printDebug(float dt) {
+        std::cout << "\n";
+        sf::Vector3f vel = getVelocity(dt);
 
-    Shape() = default;
-    Shape(sf::Vector3f dimensions_)
-        : dimensions{dimensions_}
-    {}
+
+        std::cout << "Pos: " << pos.x << ", " << pos.y << ", " << pos.z << "\n";
+        std::cout << "Vel: " << vel.x << ", " << vel.y << ", " << vel.z << "\n";
+        std::cout << "Acc: " << acc.x << ", " << acc.y << ", " << acc.z << "\n";
+    }
 };
 
 class Solver {
@@ -56,7 +67,7 @@ class Solver {
         float time = 0;
         float timestep = 1;
         int substeps = 8;
-        sf::Vector3f gravity = {0, 0, -1};
+        sf::Vector3f gravity = {0, -10, 0};
 
     Solver() = default;
 
@@ -77,13 +88,14 @@ class Solver {
     }
 
     void applyGravity() {
-        for (Object obj : objects) {
+        for (Object& obj : objects) {
             obj.applyForce(gravity);
+            obj.printDebug(timestep / substeps);
         }
     }
 
     void step(float dt) {
-        for (Object obj : objects) {
+        for (Object& obj : objects) {
             obj.step(dt);
         }
     }
@@ -99,6 +111,6 @@ class Solver {
     }
 
     void setUpdateRate(int rate) {
-        timestep = 1 / rate; // Match framerate via reciprocal
+        timestep = 1 / (double)rate; // Match framerate via reciprocal
     }
 };

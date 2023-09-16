@@ -2,7 +2,8 @@ rem Build options using local SFML
 g++ -c ./src/main.cpp -ISFML-2.6.0/include -Iinclude
 g++ main.o -o smfl-app -LSFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
 
-rem Build  directory creation if necessary
+rem Recreate build
+if exist "build" rmdir /s /q "build"
 if not exist "build" mkdir "build"
 
 rem Move exe to parent directory
