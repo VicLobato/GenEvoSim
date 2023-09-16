@@ -6,13 +6,15 @@ struct Object {
     sf::Vector3f posLast;
     sf::Vector3f acc;
     float mass;
+    Shape shape;
 
     Object() = default;
-    Object(sf::Vector3f pos_, float mass_)
+    Object(sf::Vector3f pos_, float mass_, Shape shape_)
         : pos{pos_}
         , posLast{pos_}
         , acc{0.0f, 0.0f, 0.0f}
         , mass{mass_}
+        , shape(shape_)
     {}
 
     void step(float dt) {
@@ -23,8 +25,7 @@ struct Object {
     }
 
     void applyForce(sf::Vector3f force) {
-        acc += force / mass;
-        // F = MA -> A = F / M
+        acc += force / mass; // F = MA -> A = F / M
     }
 
     void setVelocity(sf::Vector3f vel, float dt) {
@@ -38,6 +39,15 @@ struct Object {
     sf::Vector3f getVelocity(float dt) {
         return (pos - posLast) / dt;
     }
+};
+
+struct Shape {
+    sf::Vector3f dimensions;
+
+    Shape() = default;
+    Shape(sf::Vector3f dimensions_)
+        : dimensions{dimensions_}
+    {}
 };
 
 class Solver {

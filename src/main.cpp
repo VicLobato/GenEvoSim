@@ -1,39 +1,34 @@
 #include <SFML/Graphics.hpp>
-#include <list>
-#include "screen.hpp"
-#include "box.hpp"
+#include "physics.hpp"
+#include "graphics.hpp"
 
 int main()
 {
-    // Init
-    Screen screen(1000, 1000, "GenEvoSim");
-    std::list<Box2D> boxes;
+    // Physics init
+    Solver solver = Solver();
+    solver.setUpdateRate(30);
 
-    // Add Boxes
-    Box2D box1;
-    box1.setSize(sf::Vector2f(100, 50));
-    box1.setPosition(50, 100);
-    box1.setColor(sf::Color::Blue);
-    boxes.push_back(box1);
+    // Object add
+    Object obj1 = Object({0, 0, 10}, 1);
+    obj1.setVelocity({0, 0, 5}, solver.timestep);
+    solver.addObject(obj1);
 
-    // Main loop
-    while (screen.window.isOpen()) {
-        sf::Event event{};
-        while (screen.window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-                screen.window.close();
+    // Window init
+    sf::RenderWindow window;
+    window.create(sf::VideoMode(1920, 1080), "Genetic Evolution Simulator");
+    // Draw object
+    Draw draw(window);
+
+    // Mainloop
+    while (window.isOpen()) {
+        sf::Event event; // Handle events
+
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) { // Close window
+                window.close();
             }
         }
 
-        screen.window.clear(sf::Color::White);
-
-        // Draw
-        for (const auto& box : boxes) {
-            screen.window.draw(box.rectangle);
-        }
-
-        screen.window.display();
+        draw.update();
     }
-
-    return 0;
 }
