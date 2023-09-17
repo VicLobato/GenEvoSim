@@ -69,9 +69,8 @@ class Solver {
     public:
         std::vector<Object> objects = {};
         float time = 0;
-        float timestep = 1;
         int substeps = 8;
-        sf::Vector3f gravity = {0, -1, 0};
+        sf::Vector3f gravity = {0, -0.004, 0};
 
     Solver() = default;
 
@@ -91,7 +90,7 @@ class Solver {
         return objects.size();
     }
 
-    void applyGravity() {
+    void applyGravity(float timestep) {
         for (Object& obj : objects) {
             obj.applyForce(gravity);
             // obj.printDebug(timestep / substeps);
@@ -104,17 +103,13 @@ class Solver {
         }
     }
 
-    void update() {
+    void update(float timestep) {
         time += timestep;
         const float substep = timestep / substeps;
         for (int counter = 0; counter < substeps; counter++) {
-            applyGravity(); // Forces reset after any step
+            applyGravity(timestep); // Forces reset after any step
             // resolveCollisions(substep)
             step(substep);
         }
-    }
-
-    void setUpdateRate(int rate) {
-        timestep = 1 / (double)rate; // Match framerate via reciprocal
     }
 };
