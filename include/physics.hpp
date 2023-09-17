@@ -67,7 +67,7 @@ class Solver {
         float time = 0;
         float timestep = 1;
         int substeps = 8;
-        sf::Vector3f gravity = {0, -10, 0};
+        sf::Vector3f gravity = {0, -1, 0};
 
     Solver() = default;
 
@@ -90,7 +90,7 @@ class Solver {
     void applyGravity() {
         for (Object& obj : objects) {
             obj.applyForce(gravity);
-            obj.printDebug(timestep / substeps);
+            // obj.printDebug(timestep / substeps);
         }
     }
 
