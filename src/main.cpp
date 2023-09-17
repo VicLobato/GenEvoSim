@@ -7,31 +7,36 @@
 
 int main()
 {
-    const int FPS = 30;
+    // // DO NOT EDIT BELOW THIS LINE
+    const int FPS = 60;
     const std::chrono::duration<double> FrameDuration(1.0 / FPS);
 
     // Physics init
     Solver solver = Solver();
-    solver.setUpdateRate(1); // 30 WHEN FRAME LIMITED
-
-    // Object add
-    Object obj1 = Object({400, 500, 0}, 1, Shape({10,10,10}));
-    obj1.setVelocity({1, 1, 0}, solver.timestep);
-    solver.addObject(obj1);
+    solver.setUpdateRate(FPS / 30);
 
     // Window init
     sf::RenderWindow window;
     window.create(sf::VideoMode(800, 600), "Genetic Evolution Simulator");
     // Draw object
     Draw draw(window, solver);
+    draw.DEBUG_MODE = true;
 
+    // // DO NOT EDIT ABOVE THIS LINE
+
+    // Add ground plane and edges
+    solver.addObject(Object({0, 10, 0}, 0, Shape({800,10,10}, {100,250,0})));
+    solver.addObject(Object({0, 600, 0}, 0, Shape({10,600,10}, {100,250,0})));
+    solver.addObject(Object({790, 600, 0}, 0, Shape({10,600,10}, {100,250,0})));
+
+    auto frame_time = std::chrono::high_resolution_clock::now() - std::chrono::high_resolution_clock::now();
     // Mainloop
     while (window.isOpen()) {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
         // Mainloop logic
-        draw.update();
         solver.update();
+        draw.update(frame_time.count());
 
         auto frameEnd = std::chrono::high_resolution_clock::now();
         // FPS limiter
@@ -43,11 +48,12 @@ int main()
                 }
                 if (event.type == sf::Event::MouseButtonPressed) {
                     sf::Vector2f mPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
-                    solver.addObject(Object({mPos.x, window.getSize().y - mPos.y, 0}, 1, Shape({10,10,10})));
+                    solver.addObject(Object({mPos.x, window.getSize().y - mPos.y, 0}, 1, Shape({10,10,10},{255,255,255})));
                 }
             }
             auto frameEnd = std::chrono::high_resolution_clock::now();
             if ((frameEnd - frameStart) > FrameDuration) {break;}
         }
+        frame_time = frameEnd - frameStart;
     }
 }

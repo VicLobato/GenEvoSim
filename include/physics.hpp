@@ -4,10 +4,12 @@
 
 struct Shape {
     sf::Vector3f dimensions;
+    sf::Color colour;
 
     Shape() = default;
-    Shape(sf::Vector3f dimensions_)
+    Shape(sf::Vector3f dimensions_, sf::Vector3f colour_)
         : dimensions{dimensions_}
+        , colour{sf::Color(colour_.x, colour_.y, colour_.z)}
     {}
 };
 
@@ -35,7 +37,9 @@ struct Object {
     }
 
     void applyForce(sf::Vector3f force) {
-        acc += force / mass; // F = MA -> A = F / M
+        if (mass != 0) {
+            acc += force / mass; // F = MA -> A = F / M
+        }
     }
 
     void setVelocity(sf::Vector3f vel, float dt) {

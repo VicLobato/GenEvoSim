@@ -19,6 +19,10 @@ for %%F in (%fileNames%) do (
     copy /Y "%sourceDir%\%%F" "%buildDir%\"
 )
 
+rem Copy assets to build
+setlocal
+xcopy /s /i ".\assets\" ".\build\"
+
 rem Remove object code
 del main.o
 
