@@ -69,7 +69,7 @@ class Solver {
     public:
         std::vector<Object> objects = {};
         float time = 0;
-        int substeps = 8;
+        int substeps = 1;
         sf::Vector3f gravity = {0, -0.004, 0};
 
     Solver() = default;
