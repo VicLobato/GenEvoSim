@@ -30,9 +30,12 @@ struct Object {
     {}
 
     void step(float dt) {
-        sf::Vector3f dis = pos - posLast; // Displacement
+        if (mass == 0) {
+            return;
+        }
+        const sf::Vector3f dis = pos - posLast;
         posLast = pos;
-        pos += dis + acc * (dt * dt);
+        pos = pos + dis + acc * (dt * dt);
         acc = {};
     }
 
@@ -40,6 +43,10 @@ struct Object {
         if (mass != 0) {
             acc += force / mass; // F = MA -> A = F / M
         }
+    }
+
+    void accelerate(sf::Vector3f a) {
+        acc += a;
     }
 
     void setVelocity(sf::Vector3f vel, float dt) {
@@ -69,8 +76,8 @@ class Solver {
     public:
         std::vector<Object> objects = {};
         float time = 0;
-        int substeps = 1;
-        sf::Vector3f gravity = {0, -0.004, 0};
+        int substeps = 2;
+        sf::Vector3f gravity = {0, -0.01, 0};
 
     Solver() = default;
 
@@ -90,14 +97,15 @@ class Solver {
         return objects.size();
     }
 
-    void applyGravity(float timestep) {
+    void applyGravity() {
         for (Object& obj : objects) {
-            obj.applyForce(gravity);
-            // obj.printDebug(timestep / substeps);
+            if (obj.mass != 0) {
+                obj.accelerate(gravity);
+            }
         }
     }
 
-    void step(float dt) {
+    void step(double dt) {
         for (Object& obj : objects) {
             obj.step(dt);
         }
@@ -107,7 +115,7 @@ class Solver {
         time += timestep;
         const float substep = timestep / substeps;
         for (int counter = 0; counter < substeps; counter++) {
-            applyGravity(timestep); // Forces reset after any step
+            applyGravity(); // Forces reset after any step
             // resolveCollisions(substep)
             step(substep);
         }

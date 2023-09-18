@@ -67,5 +67,6 @@
         "chrono": "cpp",
         "filesystem": "cpp",
         "forward_list": "cpp"
-    }
+    },
+    "C_Cpp.default.cppStandard": "c++20",
 }
