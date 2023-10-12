@@ -25,10 +25,10 @@ class Draw {
         , solver(solver_)
     {   
         std::string currentWorkingDirectory = std::filesystem::current_path().string();
-        std::string fontPath = currentWorkingDirectory + "\\build\\AnonymousPro-Regular.ttf";
+        std::string fontPath = currentWorkingDirectory + "\\build\\resources\\AnonymousPro-Regular.ttf";
         if (!font.loadFromFile(fontPath)) {
             // VSCODE special because it sets the CWD to the parent folder like a stupid IDE
-            std::string fontPath = currentWorkingDirectory + "\\AnonymousPro-Regular.ttf";
+            std::string fontPath = currentWorkingDirectory + "\\resources\\AnonymousPro-Regular.ttf";
             if (!font.loadFromFile(fontPath)) {
                 std::cout << "Failed to load ttf\n";
             }
