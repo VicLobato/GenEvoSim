@@ -35,6 +35,13 @@ void Text(sf::RenderWindow& window, int x, int y, std::string string, sf::Color 
     window.draw(text);
 };
 
+class Camera {
+    public:
+        sf::Vector3f position;
+        float xRotation = 0; // Like a magnetic bearing
+        float yRotation = 0; // Relativistic "up" and "down"
+};
+
 class Cube {
     public:
         sf::Vector3f position;
