@@ -8,7 +8,8 @@
             "args": [
                 "/c",
                 "call",
-                "build.bat"
+                "build.bat",
+                "${file}"
             ],
             "group": {
                 "kind": "build",
