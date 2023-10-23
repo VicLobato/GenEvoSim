@@ -52,107 +52,105 @@ class Camera {
     public:
         sf::Vector3f position = {0, 0, 0};
         float xRotation = 0; // Like a magnetic bearing
-        float yRotation = 0; // Relativistic "up" and "down"
+        float yRotation = 0; // I gave up, I'm now using euler angles
+        float zRotation = 0; // ^ See above
+        float fov = 90; // In degrees
+
         std::vector<Cube> objs; // List of world objects
-        sf::RenderWindow *window;
+        sf::RenderWindow *window; // Pointer reference to SFML window for rendering
 
     Camera(sf::RenderWindow *_window) : window(_window) {}
 
     void render() {
+        // Iterate over the cubes and draw them
         for (const auto &cube : objs) {
+            // Get width, height and depth but divide by 2
             float w = cube.size.x / 2.0f;
             float h = cube.size.y / 2.0f;
-            float d = cube.size.y / 2.0f;
+            float d = cube.size.z / 2.0f;
 
-            std::vector<sf::Vector3f> localCoords{
-                { w, h, d},
-                { w, h,-d},
-                { w,-h, d},
-                { w,-h,-d},
-                {-w, h, d},
-                {-w, h,-d},
-                {-w,-h, d},
-                {-w,-h,-d}
-            };
+            // Get corner coordinates relative to origin
+            std::vector<sf::Vector3f> localCoords{{w,h,d},{w,h,-d},{w,-h,d},{w,-h,-d},{-w,h,d},{-w,h,-d},{-w,-h,d},{-w,-h,-d}};
+
+            // Then offset them by the centre of the cube
+            for(auto& coord : localCoords){
+                coord.x += cube.position.x;
+                coord.y += cube.position.y;
+                coord.z += cube.position.z;
+            }
 
             // Precalculate rotation values
-            float sinX = std::sin(cube.rotation.x);
-            float cosX = std::cos(cube.rotation.x);
-            float sinY = std::sin(cube.rotation.y);
-            float cosY = std::cos(cube.rotation.y);
-            float sinZ = std::sin(cube.rotation.z);
-            float cosZ = std::cos(cube.rotation.z);
+            float sinX = std::sin(xRotation);
+            float cosX = std::cos(xRotation);
+            float sinY = std::sin(yRotation);
+            float cosY = std::cos(yRotation);
+            float sinZ = std::sin(zRotation);
+            float cosZ = std::cos(zRotation);
 
             Matrix rotationX(3, 3);
             Matrix rotationY(3, 3);
             Matrix rotationZ(3, 3);
 
-            rotationX.assign({
-                {1,    0,     0},
-                {0, cosX, -sinX},
-                {0, sinX,  cosX}
-            });
+            // https://en.wikipedia.org/wiki/3D_projection#Mathematical_formula
+            rotationX.assign({{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}});
+            rotationY.assign({{cosY, 0, -sinY}, {0, 1, 0}, {sinY, 0, cosY}});
+            rotationZ.assign({{cosZ, sinY, 0}, {-sinZ, cosZ, 0}, {0, 0, 1}});
 
-            rotationY.assign({
-                { cosY, 0, sinY},
-                {    0, 1,    0},
-                {-sinY, 0, cosY}
-            });
+            float depth = 1 / std::tan(fov * 3.14159 / 360);
 
-            rotationZ.assign({
-                {cosZ, -sinY, 0},
-                {sinZ,  cosZ, 0},
-                {   0,     0, 1}
-            });
-
-            std::vector<sf::Vector3f> corners; // The corners used for rendering
+            std::vector<sf::Vector2f> coords; // The corners used for rendering
             for (const auto& localCoord : localCoords) {
                 Matrix localCoordMatrix(3, 1);
                 localCoordMatrix.assign({
-                    {localCoord.x},
-                    {localCoord.y},
-                    {localCoord.z}
+                    {localCoord.x - position.x},
+                    {localCoord.y - position.y},
+                    {localCoord.z - position.z}
                 });
-                Matrix rotatedCoord = rotationZ * rotationY * rotationX * localCoordMatrix;
-                corners.push_back({
-                    cube.position.x + rotatedCoord.data[0][0],
-                    cube.position.y + rotatedCoord.data[1][0],
-                    cube.position.z + rotatedCoord.data[2][0]
+                Matrix rotatedCoord = rotationX * rotationY * rotationZ * localCoordMatrix;
+                coords.push_back({
+                    depth * rotatedCoord.data[0][0] / rotatedCoord.data[2][0],
+                    depth * rotatedCoord.data[1][0] / rotatedCoord.data[2][0],
                 });
             }
 
-            // Convert to screen-space coordinates
-            sf::Vector2u windowSize = (*window).getSize();
-            for (auto &corner : corners) {
-                float screenX = (corner.x + 1) * windowSize.x * 0.5;
-                float screenY = (1 - corner.y) * windowSize.y * 0.5; // Invert the y-axis
-                corner = {screenX, screenY, corner.z}; // Update the corner in-place
+            // Map to screen-space coordinates
+            // Coords are being returned as -1,-1 to 1,1
+            // We need it to go from 0,0 to width,height
+            for (auto &coord : coords) {
+                coord.x = (coord.x + 1) * (*window).getSize().x / 2;
+                coord.y = (coord.y + 1) * (*window).getSize().y / 2;
             }
 
-            // // // // // std::cout << std::to_string(corners[0].x) + " " + std::to_string(corners[1].y) + "\n";
-
-            // Corners now recalculated
-            // The 6 faces and the constituent corners
-            std::vector<std::vector<int>> polygonIndices = {
-                {0, 1, 3, 2},
-                {4, 5, 7, 6},
-                {3, 1, 5, 7},
-                {2, 0, 4, 6},
-                {5, 1, 0, 4},
-                {2, 3, 7, 6}
-            };
-
-            sf::ConvexShape polygon;
-            polygon.setFillColor(sf::Color::Blue);
-            polygon.setPointCount(4);
-
-            for (const auto &indices : polygonIndices) {
-                polygon.setPoint(0, sf::Vector2f(corners[indices[0]].x, corners[indices[0]].y));
-                polygon.setPoint(1, sf::Vector2f(corners[indices[1]].x, corners[indices[1]].y));
-                polygon.setPoint(2, sf::Vector2f(corners[indices[2]].x, corners[indices[2]].y));
-                polygon.setPoint(3, sf::Vector2f(corners[indices[3]].x, corners[indices[3]].y));
-                (*window).draw(polygon);
+            for (const auto &coord : coords) {
+                sf::CircleShape circle(5);
+                circle.setFillColor(sf::Color::Red);
+                circle.setPosition(coord.x, coord.y); 
+                (*window).draw(circle);
             }
+            
+            // // Corners now recalculated
+            // // The 6 faces and the constituent corners
+            // std::vector<std::vector<int>> polygonIndices = {
+            //     {0, 1, 3, 2},
+            //     {4, 5, 7, 6},
+            //     {3, 1, 5, 7},
+            //     {2, 0, 4, 6},
+            //     {5, 1, 0, 4},
+            //     {2, 3, 7, 6}
+            // };
+
+            // // Render using SFML
+            // for (const auto &indices : polygonIndices) {
+            //     sf::ConvexShape polygon;
+            //     polygon.setFillColor(sf::Color::Blue);
+            //     polygon.setPointCount(4);
+
+            //     polygon.setPoint(0, sf::Vector2f(coords[indices[0]].x, coords[indices[0]].y));
+            //     polygon.setPoint(1, sf::Vector2f(coords[indices[1]].x, coords[indices[1]].y));
+            //     polygon.setPoint(2, sf::Vector2f(coords[indices[2]].x, coords[indices[2]].y));
+            //     polygon.setPoint(3, sf::Vector2f(coords[indices[3]].x, coords[indices[3]].y));
+            //     (*window).draw(polygon);
+            // }
 
         }
     }

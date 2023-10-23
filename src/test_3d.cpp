@@ -23,7 +23,7 @@ int main()
 
     // Camera / World init
     Camera camera = Camera(&window); // Window passed in for rendering
-    camera.position = {-10, 0, 0};
+    camera.position = {0, 0, 5};
 
     // Pre-loop logic
     Cube c1 = Cube({0,0,0},{1,1,1});
@@ -49,10 +49,10 @@ int main()
                 window.setView(sf::View(newArea));
             }
             if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::A) { camera.xRotation = fmod(camera.xRotation - 0.1, 3.14159); }
-                if (event.key.code == sf::Keyboard::D) { camera.xRotation = fmod(camera.xRotation + 0.1, 3.14159); }
-                if (event.key.code == sf::Keyboard::W) { camera.yRotation = fmod(camera.yRotation + 0.1, 3.14159); }
-                if (event.key.code == sf::Keyboard::S) { camera.yRotation = fmod(camera.yRotation - 0.1, 3.14159); }
+                if (event.key.code == sf::Keyboard::A) { camera.position.x += 1; }
+                if (event.key.code == sf::Keyboard::D) { camera.position.x -= 1; }
+                if (event.key.code == sf::Keyboard::W) { camera.position.y += 1; }
+                if (event.key.code == sf::Keyboard::S) { camera.position.y -= 1; }
             }
         }
 
