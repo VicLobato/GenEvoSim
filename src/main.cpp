@@ -6,6 +6,7 @@
 
 float MOUSE_SENSITIVITY = 0.75;
 float MOVEMENT_SPEED = 0.25;
+bool INVERT_MOUSE = false;
 bool DEBUG = true;
 
 std::string round(auto value, int precision) {
@@ -86,11 +87,13 @@ int main()
         // POST EVENT LOGIC
 
         // END LOOP MOUSE LOCK
+        int yMouseMultiplier = 1;
+        if (INVERT_MOUSE == true) {yMouseMultiplier = -1;}
         sf::Vector2i mousePos = sf::Mouse::getPosition(window); // Get curent mouse screen-space position
         sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2); // Get screenspace center
         sf::Vector2i deltaMouse = {mousePos.x - windowCenter.x, mousePos.y - windowCenter.y}; // Get change in mouse position
         camera.yRotation += MOUSE_SENSITIVITY * deltaMouse.x / 250.0f;
-        camera.xRotation = clamp(camera.xRotation + MOUSE_SENSITIVITY * deltaMouse.y / 250.0f, -1.5708, 1.5708);
+        camera.xRotation = clamp(camera.xRotation - yMouseMultiplier * MOUSE_SENSITIVITY * deltaMouse.y / 250.0f, -1.5708, 1.5708);
         sf::Mouse::setPosition(windowCenter, window); // Lock mouse to center of screen
 
         // END LOOP TIMING

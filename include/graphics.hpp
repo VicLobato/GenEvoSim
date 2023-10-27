@@ -156,20 +156,22 @@ class Camera {
 
             // Render using SFML
             for (const auto &indices : polygonIndices) {
-                int skip = 0; // Start by assuming its fully offscreen
+                // https://en.wikipedia.org/wiki/Back-face_culling#Implementation
+                int onScreenPoints = 0; // Start by assuming its fully offscreen
                 for (int i = 0; i < 3; i++) {
                     if (coords[indices[i]].z >= 0 && coords[indices[i]].z <= CLIP_DISTANCE &&
                         coords[indices[i]].x >= 0 && coords[indices[i]].x <= (*window).getSize().x &&
                         coords[indices[i]].y >= 0 && coords[indices[i]].y <= (*window).getSize().y) {
-                        skip += 1; // We know its at least partially onscreen
+                        onScreenPoints += 1; // We know its at least partially onscreen
                     }
                 }
-                if (skip == 0) {
-                    continue; // If fully offscreen skip
-                } else if (skip < 3) {
-                    // Adjust points
+                if (onScreenPoints == 0) { // If fully offscreen skip
+                    continue; 
+                } else if (onScreenPoints == 1) { // If 1 point on screen
                     int a = 1;
                 }
+
+                std::cout << "draw";
 
                 sf::ConvexShape polygon;
                 polygon.setFillColor(cube.colour);
