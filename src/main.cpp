@@ -29,7 +29,7 @@ int main()
     window.create(sf::VideoMode::getDesktopMode(), "Genetic Evolution Simulator");
     window.setMouseCursorVisible(false);
 
-    // Camera / World init
+    // Camera / World init 
     Camera camera = Camera(&window); // Window passed in for rendering
     camera.position = {0, 0, 0};
     
