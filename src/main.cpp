@@ -3,8 +3,6 @@
 #include <chrono>
 #include <map>
 
-#include <iostream>
-
 float MOUSE_SENSITIVITY = 0.75;
 float MOVEMENT_SPEED = 0.25;
 bool INVERT_MOUSE = false;
@@ -34,8 +32,8 @@ void pre_loop_setup() {
 
 void end_loop_func() {
     // END LOOP MOUSE LOCK
-    int yMouseMultiplier = 1;
-    if (INVERT_MOUSE == true) {yMouseMultiplier = -1;}
+    int yMouseMultiplier = -1;
+    if (INVERT_MOUSE == true) {yMouseMultiplier = 1;}
     sf::Vector2i mousePos = sf::Mouse::getPosition(window); // Get curent mouse screen-space position
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2); // Get screenspace center
     sf::Vector2i deltaMouse = {mousePos.x - windowCenter.x, mousePos.y - windowCenter.y}; // Get change in mouse position
@@ -75,8 +73,8 @@ void event_handler() {
     camera.position.z += std::cos(camera.yRotation + 1.5708) * sign * MOVEMENT_SPEED;
 
     // Up and Down movement
-    if (keys[sf::Keyboard::Space] ) {camera.position.y -= MOVEMENT_SPEED;}
-    if (keys[sf::Keyboard::LShift]) {camera.position.y += MOVEMENT_SPEED;}
+    if (keys[sf::Keyboard::Space] ) {camera.position.y += MOVEMENT_SPEED;}
+    if (keys[sf::Keyboard::LShift]) {camera.position.y -= MOVEMENT_SPEED;}
 };
 
 int main() {

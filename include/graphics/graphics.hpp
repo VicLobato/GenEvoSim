@@ -87,13 +87,13 @@ class Camera {
             // We need it to go from 0,0 to width,height
             if ((*window).getSize().x > (*window).getSize().y) {
                 for (auto &coord : coords) {
-                    coord.x += (coord.x + 1) * (*window).getSize().y / 2 + ((*window).getSize().x -  (*window).getSize().y) / 2;
-                    coord.y += (coord.y + 1) * (*window).getSize().y / 2;
+                    coord.x += ( coord.x + 1) * (*window).getSize().y / 2 + ((*window).getSize().x -  (*window).getSize().y) / 2;
+                    coord.y += (-coord.y + 1) * (*window).getSize().y / 2;
                 }
             } else {
                 for (auto &coord : coords) {
-                    coord.x += (coord.x + 1) * (*window).getSize().x / 2;
-                    coord.y += (coord.y + 1) * (*window).getSize().x / 2 + ((*window).getSize().y -  (*window).getSize().x) / 2;
+                    coord.x += ( coord.x + 1) * (*window).getSize().x / 2;
+                    coord.y += (-coord.y + 1) * (*window).getSize().x / 2 + ((*window).getSize().y -  (*window).getSize().x) / 2;
                 }
             }
             

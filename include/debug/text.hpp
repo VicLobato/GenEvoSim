@@ -4,7 +4,7 @@
 #include <string>
 #include "debug/process.hpp"
 
-void draw_text(sf::RenderWindow& window, int x, int y, std::string string, sf::Color colour = sf::Color::White, int size = 20, sf::Color highlight = sf::Color::Transparent, bool anchorRight = false) {
+void draw_text(sf::RenderWindow& window, int x, int y, std::string string, sf::Color colour = sf::Color::White, int size = 20, sf::Color highlight = sf::Color::Transparent, bool anchorRight = false, bool anchorBottom = false) {
     // LOAD FONT
     sf::Font font;
     std::string currentWorkingDirectory = std::filesystem::current_path().string();
@@ -29,9 +29,15 @@ void draw_text(sf::RenderWindow& window, int x, int y, std::string string, sf::C
     sf::FloatRect textBounds = text.getGlobalBounds();
     sf::RectangleShape background(sf::Vector2f(textBounds.width + 20, textBounds.height + 20));
     background.setFillColor(highlight);
+    float nX = x;
+    float nY = y;
 
-    if (anchorRight == true) {
-        text.setPosition(window.getSize().x - x - textBounds.width - 20, y);
+    if (anchorRight  == true) {nX = window.getSize().x - x - textBounds.width  - 20;}
+    if (anchorBottom == true) {nY = window.getSize().y - y - textBounds.height - 20;}
+    
+
+    if (anchorRight == true || anchorBottom == true) {
+        text.setPosition(nX,  nY);
         textBounds = text.getGlobalBounds();
     }
 
@@ -60,4 +66,7 @@ void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::millisec
     draw_text(window, 0, 120, debug_stringcx, sf::Color::Black, 30, sf::Color::Red, true);
     draw_text(window, 0, 160, debug_stringcy, sf::Color::Black, 30, sf::Color::Green, true);
     draw_text(window, 0, 200, debug_stringcz, sf::Color::Black, 30, sf::Color::Blue, true);
+
+    std::string debug_stringh = "WASD for Movement\nSpace and Shift for Up and Down\nESC to exit";
+    draw_text(window, 0, 90, debug_stringh, sf::Color::White, 30, sf::Color::Transparent, false, true);
 };
