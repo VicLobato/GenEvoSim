@@ -12,7 +12,6 @@ class Matrix {
             int _rows = data.size();
             int _cols = other.data[0].size();
             int iter = other.data.size();
-
             Matrix result(_rows, _cols);
             
             for (int i = 0; i < _rows; i++) {
@@ -29,7 +28,6 @@ class Matrix {
         Matrix operator+(const Matrix &other) {
             int _rows = data.size();
             int _cols = data[0].size();
-
             Matrix result(_rows, _cols);
 
             for (int i = 0; i < _rows; i++) {
@@ -58,15 +56,5 @@ class Matrix {
                 std::cout << "\n";
             }
             std::cout << "\n";
-        }
-
-        void assign(const std::vector<std::vector<float>> &elements) {
-            if (elements.size() == data.size() || elements[0].size() == data[0].size()) {
-                for (int i = 0; i < elements.size(); i++) {
-                    for (int j = 0; j < elements[0].size(); j++) {
-                        data[i][j] = elements[i][j];
-                    }
-                }
-            }
         }
 };
