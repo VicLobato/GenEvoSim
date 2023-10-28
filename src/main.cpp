@@ -52,9 +52,8 @@ void event_handler() {
             sf::FloatRect newArea(0, 0, event.size.width, event.size.height);
             window.setView(sf::View(newArea));
         }
-        if (event.type == sf::Event::KeyPressed)  {keys[event.key.code] = true ;}
+        if (event.type == sf::Event::KeyPressed ) {keys[event.key.code] = true ;}
         if (event.type == sf::Event::KeyReleased) {keys[event.key.code] = false;}
-
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {window.close();}
     }
 
