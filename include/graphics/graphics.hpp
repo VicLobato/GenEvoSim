@@ -1,48 +1,8 @@
 #pragma once
-#include "matrix.hpp"
 #include <SFML/Graphics.hpp>
-#include <cmath>
+#include "matrix.hpp"
 #include <vector>
-#include <filesystem>
-#include <iostream> // DEBUGGING
-#include <string>
-
-void Text(sf::RenderWindow& window, int x, int y, std::string string, sf::Color colour = sf::Color::White, int size = 20, sf::Color highlight = sf::Color::Transparent, bool anchorRight = false) {
-    // LOAD FONT
-    sf::Font font;
-    std::string currentWorkingDirectory = std::filesystem::current_path().string();
-    std::string fontPath = currentWorkingDirectory + "\\build\\resources\\AnonymousPro-Regular.ttf";
-    if (!font.loadFromFile(fontPath)) {
-        // VSCODE special because it sets the CWD to the parent folder like a stupid IDE
-        std::string fontPath = currentWorkingDirectory + "\\resources\\AnonymousPro-Regular.ttf";
-        if (!font.loadFromFile(fontPath)) {
-            std::cout << "Failed to load ttf\n";
-        }
-    }
-    
-    // DRAW TEXT
-    sf::Text text;
-    text.setFont(font);
-    text.setString(string);
-    text.setCharacterSize(size);
-    text.setFillColor(colour);
-    text.setPosition(x, y);
-
-    // BACKGROUND HIGHLIGHT
-    sf::FloatRect textBounds = text.getGlobalBounds();
-    sf::RectangleShape background(sf::Vector2f(textBounds.width + 20, textBounds.height + 20));
-    background.setFillColor(highlight);
-
-    if (anchorRight == true) {
-        text.setPosition(window.getSize().x - x - textBounds.width - 20, y);
-        textBounds = text.getGlobalBounds();
-    }
-
-    background.setPosition(textBounds.left - 10, textBounds.top - 10);
-
-    window.draw(background);
-    window.draw(text);
-};
+#include <cmath>
 
 class Cube {
     public:
@@ -100,20 +60,20 @@ class Camera {
             Matrix rotationZ(3, 3);
 
             // https://en.wikipedia.org/wiki/3D_projection#Mathematical_formula
-            rotationX.assign({{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}});
-            rotationY.assign({{cosY, 0, -sinY}, {0, 1, 0}, {sinY, 0, cosY}});
-            rotationZ.assign({{cosZ, sinZ, 0}, {-sinZ, cosZ, 0}, {0, 0, 1}});
+            rotationX.data = {{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}};
+            rotationY.data = {{cosY, 0, -sinY}, {0, 1, 0}, {sinY, 0, cosY}};
+            rotationZ.data = {{cosZ, sinZ, 0}, {-sinZ, cosZ, 0}, {0, 0, 1}};
 
             float depth = 1 / std::tan(fov * 3.14159 / 360);
 
             std::vector<sf::Vector3f> coords; // The corners used for rendering
             for (const auto& localCoord : localCoords) {
                 Matrix localCoordMatrix(3, 1);
-                localCoordMatrix.assign({
+                localCoordMatrix.data = {
                     {localCoord.x - position.x},
                     {localCoord.y - position.y},
                     {localCoord.z - position.z}
-                });
+                };
                 Matrix rotatedCoord = rotationX * rotationY * rotationZ * localCoordMatrix;
                 coords.push_back({
                     depth * rotatedCoord.data[0][0] / rotatedCoord.data[2][0],
@@ -127,13 +87,13 @@ class Camera {
             // We need it to go from 0,0 to width,height
             if ((*window).getSize().x > (*window).getSize().y) {
                 for (auto &coord : coords) {
-                    coord.x += (coord.x + 1) * (*window).getSize().y / 2 + ((*window).getSize().x -  (*window).getSize().y) / 2;
-                    coord.y += (coord.y + 1) * (*window).getSize().y / 2;
+                    coord.x += ( coord.x + 1) * (*window).getSize().y / 2 + ((*window).getSize().x -  (*window).getSize().y) / 2;
+                    coord.y += (-coord.y + 1) * (*window).getSize().y / 2;
                 }
             } else {
                 for (auto &coord : coords) {
-                    coord.x += (coord.x + 1) * (*window).getSize().x / 2;
-                    coord.y += (coord.y + 1) * (*window).getSize().x / 2 + ((*window).getSize().y -  (*window).getSize().x) / 2;
+                    coord.x += ( coord.x + 1) * (*window).getSize().x / 2;
+                    coord.y += (-coord.y + 1) * (*window).getSize().x / 2 + ((*window).getSize().y -  (*window).getSize().x) / 2;
                 }
             }
             
@@ -170,8 +130,6 @@ class Camera {
                 } else if (onScreenPoints == 1) { // If 1 point on screen
                     int a = 1;
                 }
-
-                std::cout << "draw";
 
                 sf::ConvexShape polygon;
                 polygon.setFillColor(cube.colour);

@@ -17,4 +17,5 @@ del "./%a%/%filename%.exe"
 move "%filename%.exe" "./%a%/"
 setlocal
 del "%filename%.o"
-call "./%a%/%filename%.exe"
+cd "%a%"
+call "%filename%.exe"
