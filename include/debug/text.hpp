@@ -47,11 +47,13 @@ void draw_text(sf::RenderWindow& window, int x, int y, std::string string, sf::C
     window.draw(text);
 };
 
-void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::milliseconds duration) {
+void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::microseconds duration) {
     std::string debug_string1 = "Frame: " + round(duration.count(), 2) + "ms";
     std::string debug_string2 = "Objs: " + std::to_string(camera.objs.size());
+    std::string debug_string3 = "FPS: " + std::to_string(1000000 / (duration.count() + 1));
     draw_text(window, 0, 0, debug_string1, sf::Color::Black, 30, sf::Color::Red);
     draw_text(window, 0, 40, debug_string2, sf::Color::Black, 30, sf::Color::Green);
+    draw_text(window, 0, 80, debug_string3, sf::Color::Black, 30, sf::Color::Blue);
 
     std::string debug_stringpx = "Camera X: " + std::to_string(camera.position.x);
     std::string debug_stringpy = "Camera Y: " + std::to_string(camera.position.y);
@@ -62,10 +64,8 @@ void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::millisec
 
     std::string debug_stringcx = "Camera rX: " + std::to_string(camera.xRotation);
     std::string debug_stringcy = "Camera rY: " + std::to_string(camera.yRotation);
-    std::string debug_stringcz = "Camera rZ: " + std::to_string(camera.zRotation);
     draw_text(window, 0, 120, debug_stringcx, sf::Color::Black, 30, sf::Color::Red, true);
     draw_text(window, 0, 160, debug_stringcy, sf::Color::Black, 30, sf::Color::Green, true);
-    draw_text(window, 0, 200, debug_stringcz, sf::Color::Black, 30, sf::Color::Blue, true);
 
     std::string debug_stringh = "WASD for Movement\nSpace and Shift for Up and Down\nESC to exit";
     draw_text(window, 0, 90, debug_stringh, sf::Color::White, 30, sf::Color::Transparent, false, true);

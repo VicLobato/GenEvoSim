@@ -1,8 +1,16 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "matrix.hpp"
+#include <algorithm>
 #include <vector>
 #include <cmath>
+
+float distance(const sf::Vector3f a, const sf::Vector3f b) {
+    const float x = a.x - b.x;
+    const float y = a.y - b.y;
+    const float z = a.z - b.z;
+    return std::sqrt(x*x + y*y + z*z);
+}
 
 class Cube {
     public:
@@ -48,16 +56,16 @@ class Camera {
             }
 
             // Precalculate rotation values
-            float sinX = std::sin(xRotation);
-            float cosX = std::cos(xRotation);
-            float sinY = std::sin(yRotation);
-            float cosY = std::cos(yRotation);
-            float sinZ = std::sin(zRotation);
-            float cosZ = std::cos(zRotation);
+            float sinX = std::sin(-xRotation);
+            float cosX = std::cos(-xRotation);
+            float sinY = std::sin( yRotation);
+            float cosY = std::cos( yRotation);
+            float sinZ = std::sin( zRotation);
+            float cosZ = std::cos( zRotation);
 
             Matrix rotationX(3, 3);
             Matrix rotationY(3, 3);
-            Matrix rotationZ(3, 3);
+            Matrix rotationZ(3, 3); 
 
             // https://en.wikipedia.org/wiki/3D_projection#Mathematical_formula
             rotationX.data = {{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}};
@@ -66,7 +74,17 @@ class Camera {
 
             float depth = 1 / std::tan(fov * 3.14159 / 360);
 
-            std::vector<sf::Vector3f> coords; // The corners used for rendering
+            // The 6 faces and the constituent corners
+            std::vector<std::vector<int>> polygonIndices = {
+                {0, 1, 3, 2},
+                {4, 5, 7, 6},
+                {3, 1, 5, 7},
+                {2, 0, 4, 6},
+                {5, 1, 0, 4},
+                {2, 3, 7, 6}
+            };
+
+            std::vector<sf::Vector3f> coords; // The corners used for screen-space
             for (const auto& localCoord : localCoords) {
                 Matrix localCoordMatrix(3, 1);
                 localCoordMatrix.data = {
@@ -96,51 +114,20 @@ class Camera {
                     coord.y += (-coord.y + 1) * (*window).getSize().x / 2 + ((*window).getSize().y -  (*window).getSize().x) / 2;
                 }
             }
-            
-            // Corners now recalculated
-            // The 6 faces and the constituent corners
-            std::vector<std::vector<int>> polygonIndices = {
-                {0, 1, 3},
-                {0, 3, 2},
-                {4, 5, 7},
-                {4, 7, 6},
-                {3, 1, 5},
-                {3, 5, 7},
-                {2, 0, 4},
-                {2, 4, 6},
-                {5, 1, 0},
-                {5, 0, 4},
-                {2, 3, 7},
-                {2, 7, 6}
-            };
 
             // Render using SFML
             for (const auto &indices : polygonIndices) {
-                // https://en.wikipedia.org/wiki/Back-face_culling#Implementation
-                int onScreenPoints = 0; // Start by assuming its fully offscreen
-                for (int i = 0; i < 3; i++) {
-                    if (coords[indices[i]].z >= 0 && coords[indices[i]].z <= CLIP_DISTANCE &&
-                        coords[indices[i]].x >= 0 && coords[indices[i]].x <= (*window).getSize().x &&
-                        coords[indices[i]].y >= 0 && coords[indices[i]].y <= (*window).getSize().y) {
-                        onScreenPoints += 1; // We know its at least partially onscreen
-                    }
-                }
-                if (onScreenPoints == 0) { // If fully offscreen skip
-                    continue; 
-                } else if (onScreenPoints == 1) { // If 1 point on screen
-                    int a = 1;
-                }
-
                 sf::ConvexShape polygon;
                 polygon.setFillColor(cube.colour);
-                polygon.setPointCount(3);
+                polygon.setPointCount(4);
 
                 polygon.setPoint(0, sf::Vector2f(coords[indices[0]].x, coords[indices[0]].y));
                 polygon.setPoint(1, sf::Vector2f(coords[indices[1]].x, coords[indices[1]].y));
                 polygon.setPoint(2, sf::Vector2f(coords[indices[2]].x, coords[indices[2]].y));
+                polygon.setPoint(3, sf::Vector2f(coords[indices[3]].x, coords[indices[3]].y));
                 
                 (*window).draw(polygon);
-            }
-        }
-    }   
+            };
+        };
+    };
 };
