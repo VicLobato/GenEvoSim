@@ -6,7 +6,7 @@ class Matrix {
     public:
         std::vector<std::vector<float>> data;
 
-        Matrix(int rows, int cols, float init = 0.0f) : data(rows, std::vector<float>(cols, init)) {}
+        Matrix(int rows = 3, int cols = 3, float init = 0.0f) : data(rows, std::vector<float>(cols, init)) {}
 
         Matrix operator*(const Matrix &other) {
             int _rows = data.size();

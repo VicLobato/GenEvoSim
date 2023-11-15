@@ -1,6 +1,7 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include "matrix.hpp"
+#include "cube.hpp"
+#include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <vector>
 #include <cmath>
@@ -11,17 +12,6 @@ float distance(const sf::Vector3f a, const sf::Vector3f b) {
     const float z = a.z - b.z;
     return std::sqrt(x*x + y*y + z*z);
 }
-
-class Cube {
-    public:
-        sf::Vector3f position;
-        sf::Vector3f size;
-        sf::Vector3f rotation;
-        sf::Color colour;
-
-    Cube(const sf::Vector3f &_position, const sf::Vector3f &_size, const sf::Vector3f &_rotation = {0, 0, 0}, const sf::Color &_colour = {255, 255, 255})
-        : position(_position), size(_size), rotation(_rotation), colour(_colour) {}
-};
 
 class Camera {
     public:
@@ -35,44 +25,37 @@ class Camera {
         std::vector<Cube> objs; // List of world objects
         sf::RenderWindow *window; // Pointer reference to SFML window for rendering
 
+        // Projection matrices - precalculated to save on time
+        Matrix rotationX;
+        Matrix rotationY;
+        Matrix rotationZ; 
+
     Camera(sf::RenderWindow *_window) : window(_window) {}
 
+    // void project(sf::Vector3f point) {
+    //     a
+    // }
+
+    void recalculate() {
+        // Precalculate rotation values
+        float sinX = std::sin(-xRotation);
+        float cosX = std::cos(-xRotation);
+        float sinY = std::sin( yRotation);
+        float cosY = std::cos( yRotation);
+        float sinZ = std::sin( zRotation);
+        float cosZ = std::cos( zRotation);
+
+        // https://en.wikipedia.org/wiki/3D_projection#Mathematical_formula
+        rotationX.data = {{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}};
+        rotationY.data = {{cosY, 0, -sinY}, {0, 1, 0}, {sinY, 0, cosY}};
+        rotationZ.data = {{cosZ, sinZ, 0}, {-sinZ, cosZ, 0}, {0, 0, 1}};
+    }
+
     void render() {
+        recalculate();
         // Iterate over the cubes and draw them
         for (const auto &cube : objs) {
-            // Get width, height and depth but divide by 2
-            float w = cube.size.x / 2.0f;
-            float h = cube.size.y / 2.0f;
-            float d = cube.size.z / 2.0f;
-
-            // Get corner coordinates relative to origin
-            std::vector<sf::Vector3f> localCoords{{w,h,d},{w,h,-d},{w,-h,d},{w,-h,-d},{-w,h,d},{-w,h,-d},{-w,-h,d},{-w,-h,-d}};
-
-            // Then offset them by the centre of the cube
-            for(auto& coord : localCoords){
-                coord.x += cube.position.x;
-                coord.y += cube.position.y;
-                coord.z += cube.position.z;
-            }
-
-            // Precalculate rotation values
-            float sinX = std::sin(-xRotation);
-            float cosX = std::cos(-xRotation);
-            float sinY = std::sin( yRotation);
-            float cosY = std::cos( yRotation);
-            float sinZ = std::sin( zRotation);
-            float cosZ = std::cos( zRotation);
-
-            Matrix rotationX(3, 3);
-            Matrix rotationY(3, 3);
-            Matrix rotationZ(3, 3); 
-
-            // https://en.wikipedia.org/wiki/3D_projection#Mathematical_formula
-            rotationX.data = {{1, 0, 0}, {0, cosX, sinX}, {0, -sinX, cosX}};
-            rotationY.data = {{cosY, 0, -sinY}, {0, 1, 0}, {sinY, 0, cosY}};
-            rotationZ.data = {{cosZ, sinZ, 0}, {-sinZ, cosZ, 0}, {0, 0, 1}};
-
-            float depth = 1 / std::tan(fov * 3.14159 / 360);
+            std::vector<sf::Vector3f> absoluteCoords = cube.points(); // Recalculate absolute points
 
             // The 6 faces and the constituent corners
             std::vector<std::vector<int>> polygonIndices = {
@@ -84,15 +67,17 @@ class Camera {
                 {2, 3, 7, 6}
             };
 
+            float depth = 1 / std::tan(fov * 3.14159 / 360);
             std::vector<sf::Vector3f> coords; // The corners used for screen-space
-            for (const auto& localCoord : localCoords) {
-                Matrix localCoordMatrix(3, 1);
-                localCoordMatrix.data = {
-                    {localCoord.x - position.x},
-                    {localCoord.y - position.y},
-                    {localCoord.z - position.z}
-                };
-                Matrix rotatedCoord = rotationX * rotationY * rotationZ * localCoordMatrix;
+            for (const auto& coord : absoluteCoords) {
+                Matrix coordMatrix(3, 1);
+                coordMatrix.data = {{
+                    coord.x - position.x,
+                    coord.y - position.y,
+                    coord.z - position.z
+                }};
+
+                Matrix rotatedCoord = rotationX * rotationY * rotationZ * coordMatrix;
                 coords.push_back({
                     depth * rotatedCoord.data[0][0] / rotatedCoord.data[2][0],
                     depth * rotatedCoord.data[1][0] / rotatedCoord.data[2][0],

@@ -25,7 +25,8 @@ void pre_loop_setup() {
     window.setMouseCursorVisible(false);
 
     // Camera / World init 
-    camera.position = {0, 0, 0};
+    // camera.position = {3, 4, 0};
+    // camera.yRotation = -0.441939221;
     
     // Mouselock to center screen
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
@@ -46,7 +47,7 @@ void event_handler() {
             sf::FloatRect newArea(0, 0, event.size.width, event.size.height);
             window.setView(sf::View(newArea));
         }
-        ;
+
         if (keyboard.process(event)) {window.close();}
         if (event.type == sf::Event::Closed) {window.close();}
     }
