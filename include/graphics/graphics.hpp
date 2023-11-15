@@ -53,34 +53,23 @@ class Camera {
 
     void render() {
         recalculate();
+        float depth = std::tan(fov * 3.14159 / 360);
         // Iterate over the cubes and draw them
         for (const auto &cube : objs) {
-            std::vector<sf::Vector3f> absoluteCoords = cube.points(); // Recalculate absolute points
-
-            // The 6 faces and the constituent corners
-            std::vector<std::vector<int>> polygonIndices = {
-                {0, 1, 3, 2},
-                {4, 5, 7, 6},
-                {3, 1, 5, 7},
-                {2, 0, 4, 6},
-                {5, 1, 0, 4},
-                {2, 3, 7, 6}
-            };
-
-            float depth = 1 / std::tan(fov * 3.14159 / 360);
             std::vector<sf::Vector3f> coords; // The corners used for screen-space
-            for (const auto& coord : absoluteCoords) {
+            for (const auto& coord : cube.points()) {
                 Matrix coordMatrix(3, 1);
-                coordMatrix.data = {{
-                    coord.x - position.x,
-                    coord.y - position.y,
-                    coord.z - position.z
-                }};
+                coordMatrix.data = {
+                    {coord.x - position.x},
+                    {coord.y - position.y},
+                    {coord.z - position.z}
+                };
 
                 Matrix rotatedCoord = rotationX * rotationY * rotationZ * coordMatrix;
+                rotatedCoord.print();
                 coords.push_back({
-                    depth * rotatedCoord.data[0][0] / rotatedCoord.data[2][0],
-                    depth * rotatedCoord.data[1][0] / rotatedCoord.data[2][0],
+                    rotatedCoord.data[0][0] / (rotatedCoord.data[2][0] * depth),
+                    rotatedCoord.data[1][0] / (rotatedCoord.data[2][0] * depth),
                     rotatedCoord.data[2][0]
                 });
             }
@@ -100,19 +89,34 @@ class Camera {
                 }
             }
 
+            // The 6 faces and the constituent corners
+            std::vector<std::vector<int>> polygonIndices = {
+                {0, 1, 3},
+                {0, 3, 2},
+                {4, 5, 7},
+                {4, 7, 6},
+                {3, 1, 5},
+                {3, 5, 7},
+                {2, 0, 4},
+                {2, 4, 6},
+                {5, 1, 0},
+                {5, 0, 4},
+                {2, 3, 7},
+                {2, 7, 6}
+            };
+
             // Render using SFML
             for (const auto &indices : polygonIndices) {
                 sf::ConvexShape polygon;
                 polygon.setFillColor(cube.colour);
-                polygon.setPointCount(4);
+                polygon.setPointCount(3);
 
                 polygon.setPoint(0, sf::Vector2f(coords[indices[0]].x, coords[indices[0]].y));
                 polygon.setPoint(1, sf::Vector2f(coords[indices[1]].x, coords[indices[1]].y));
                 polygon.setPoint(2, sf::Vector2f(coords[indices[2]].x, coords[indices[2]].y));
-                polygon.setPoint(3, sf::Vector2f(coords[indices[3]].x, coords[indices[3]].y));
                 
                 (*window).draw(polygon);
-            };
-        };
-    };
+            }
+        }
+    }
 };
