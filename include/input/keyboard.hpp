@@ -9,6 +9,10 @@ class Keyboard {
         Camera *camera;
     
     Keyboard(Camera *_camera) : camera(_camera) {}
+
+    bool key(sf::Keyboard::Key code) {
+        return keys[code];
+    }
     
     // 2 birds 1 stone, process event internally, return exit flag
     bool process(sf::Event event) {

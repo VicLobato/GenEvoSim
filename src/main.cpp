@@ -25,8 +25,8 @@ void pre_loop_setup() {
     window.setMouseCursorVisible(false);
 
     // Camera / World init 
-    // camera.position = {3, 4, 0};
-    // camera.yRotation = -0.441939221;
+    camera.position = {5, 5, 0};
+    camera.xRotation = -0.44;
     
     // Mouselock to center screen
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
@@ -59,15 +59,25 @@ int main() {
     pre_loop_setup();
 
     // Pre-loop logic
-    Cube c2 = Cube({0,0,5},{1,1,1},{0,0,0},sf::Color(255, 165, 0));
+    float t = 0;
+    Cube ground = Cube({0,-1,0},{50,1,50},{0,0,0},sf::Color(125, 117, 107));
+    camera.objs.push_back(ground);
+
+    Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(0, 255, 0));
+    camera.objs.push_back(c1);
+    Cube c2 = Cube({0,0,0},{1,1,1},{0,0,0},sf::Color(255, 0, 0));
     camera.objs.push_back(c2);
 
     // Mainloop
     while (window.isOpen()) {
         startTime = std::chrono::high_resolution_clock::now();
-        window.clear();
+        window.clear(camera.sky);
 
         // PRE-EVENT LOGIC
+
+
+        if (keyboard.key(sf::Keyboard::Q)) {camera.objs[0].rotation.x -= 0.1;}
+        if (keyboard.key(sf::Keyboard::E)) {camera.objs[0].rotation.x += 0.1;}
         //
 
         camera.render();

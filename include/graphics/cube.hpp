@@ -40,14 +40,13 @@ class Cube {
 
         for (auto& coord : absoluteCoords) {
             Matrix coordMatrix(3, 1);
-            coordMatrix.data = { {coord.x, coord.y, coord.z} };
+            coordMatrix.data = {{coord.x}, {coord.y}, {coord.z}};
+            Matrix rotatedCoordMatrix = getRotation() * coordMatrix;
             coord = {
-                coord.x + position.x,
-                coord.y + position.y,
-                coord.z + position.z
+                rotatedCoordMatrix.data[0][0] + position.x,
+                rotatedCoordMatrix.data[1][0] + position.y,
+                rotatedCoordMatrix.data[2][0] + position.z
             };
-        //     Matrix rotatedCoord = getRotation() * coordMatrix;
-        //     coord = { position.x + rotatedCoord.data[0][0] - cameraPosition.x, position.y + rotatedCoord.data[1][0] - cameraPosition.y, position.z + rotatedCoord.data[2][0] - cameraPosition.z };
         }
 
         return absoluteCoords;
