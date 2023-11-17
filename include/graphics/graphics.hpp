@@ -34,10 +34,6 @@ class Camera {
 
     Camera(sf::RenderWindow *_window) : window(_window) {}
 
-    // void project(sf::Vector3f point) {
-    //     a
-    // }
-
     void recalculate() {
         // Precalculate rotation values
         float sinX = std::sin(-xRotation);

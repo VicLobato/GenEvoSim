@@ -75,7 +75,6 @@ int main() {
 
         // PRE-EVENT LOGIC
 
-
         if (keyboard.key(sf::Keyboard::Q)) {camera.objs[0].rotation.x -= 0.1;}
         if (keyboard.key(sf::Keyboard::E)) {camera.objs[0].rotation.x += 0.1;}
         //
