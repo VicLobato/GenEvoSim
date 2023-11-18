@@ -23,6 +23,7 @@ void pre_loop_setup() {
     // Window init
     sf::ContextSettings settings;
     settings.depthBits = 24;
+    settings.antialiasingLevel = 4;
 
     window.create(sf::VideoMode::getDesktopMode(), "Genetic Evolution Simulator", sf::Style::Default, settings);
     window.setMouseCursorVisible(false);
@@ -31,7 +32,8 @@ void pre_loop_setup() {
 
     // Camera / World init 
     camera.position = {5, 5, 0};
-    camera.rotation.x = -0.44;
+    camera.rotation.x = -45;
+    camera.rotation.y = 270;
     
     // Mouselock to center screen
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
@@ -67,10 +69,13 @@ int main() {
     Cube ground = Cube({0,-1,0},{100,1,100},{0,0,0},sf::Color(125, 117, 107));
     camera.objs.push_back(ground);
 
-    Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(0, 255, 0));
+    Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(255, 50, 0));
     camera.objs.push_back(c1);
-    Cube c2 = Cube({0,0,0},{1,1,1},{0,0,0},sf::Color(255, 0, 0));
+    Cube c2 = Cube({0,0,0},{1,1,1},{0,0,0},sf::Color(0, 255, 50));
     camera.objs.push_back(c2);
+    Cube c3 = Cube({0,1,0},{1,1,1},{0,0,0},sf::Color(50, 0, 255));
+    camera.objs.push_back(c3);
+
 
     // Mainloop
     while (window.isOpen()) {

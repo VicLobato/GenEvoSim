@@ -47,20 +47,17 @@ class Camera {
         float lumLow = 0.5;
         float lumHigh = 1;
 
-        double v1_x = p2.x - p1.x;
-        double v1_y = p2.y - p1.y;
-        double v2_x = p3.x - p1.x;
-        double v2_y = p3.y - p1.y;
-        
-        double crossProduct = v1_x * v2_y - v1_y * v2_x;
-        double m1 = std::sqrt(v1_x * v1_x + v1_y * v1_y);
-        double m2 = std::sqrt(v2_x * v2_x + v2_y * v2_y);
+        sf::Vector3f v1 = p2 - p1;
+        sf::Vector3f v2 = p3 - p1;
 
-        float sine = 1;
-        if (m1 > 0.0 && m2 > 0.0) {sine = crossProduct / (m1 * m2);}
+        sf::Vector3f normal = sf::Vector3f(
+            (v1.y * v2.z) - (v1.z * v2.y),
+            (v1.z * v2.x) - (v1.x * v2.z),
+            (v1.x * v2.y) - (v1.y * v2.x)
+        );
 
-        std::cout << std::to_string(sine) << "\n";
-        float scalar = lumLow + (lumHigh - lumLow) * 0.5 * (sine + 1.0);
+        float cos = 0.5 + (normal.y / distance(normal, {0, 0, 0})) / 2;
+        float scalar = lumLow + cos * (lumHigh - lumLow);// DO CALCULATIONS
 
         sf::Color colourOut = {
             static_cast<sf::Uint8>(std::min(255, std::max(0, static_cast<int>(round(rawColour.r * scalar))))),
@@ -85,11 +82,11 @@ class Camera {
         for (const auto &cube : objs) {
             std::vector<sf::Vector3f> coords = cube.points(); // The corners used for screen-space
             std::vector<int> indices = {
-                0,1,3,2,
+                2,3,1,0,
                 4,5,7,6,
                 0,1,5,4,
                 3,2,6,7,
-                0,2,6,4,
+                4,6,2,0,
                 1,3,7,5
             };
 
