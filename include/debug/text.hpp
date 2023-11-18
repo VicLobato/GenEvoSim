@@ -62,8 +62,8 @@ void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::microsec
     draw_text(window, 0, 40, debug_stringpy, sf::Color::Black, 30, sf::Color::Green, true);
     draw_text(window, 0, 80, debug_stringpz, sf::Color::Black, 30, sf::Color::Blue, true);
 
-    std::string debug_stringcx = "Camera rX: " + std::to_string(camera.xRotation);
-    std::string debug_stringcy = "Camera rY: " + std::to_string(camera.yRotation);
+    std::string debug_stringcx = "Camera rX: " + std::to_string(camera.rotation.x);
+    std::string debug_stringcy = "Camera rY: " + std::to_string(camera.rotation.y);
     draw_text(window, 0, 120, debug_stringcx, sf::Color::Black, 30, sf::Color::Red, true);
     draw_text(window, 0, 160, debug_stringcy, sf::Color::Black, 30, sf::Color::Green, true);
 
