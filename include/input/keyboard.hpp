@@ -1,6 +1,11 @@
 #pragma once
 #include "graphics/graphics.hpp"
+#include <iostream>
 #include <map> // Map of all keys
+
+float rad(float degrees) {
+    return degrees * 3.14159 / 180.0f;
+}
 
 class Keyboard {
     public:
@@ -24,15 +29,15 @@ class Keyboard {
         float sign = 0.0f;
         if (keys[sf::Keyboard::W]) {sign =  1.0f;}
         if (keys[sf::Keyboard::S]) {sign = -1.0f;}
-        camera->position.x += std::sin(camera->yRotation) * sign * movement_speed;
-        camera->position.z += std::cos(camera->yRotation) * sign * movement_speed;
+        camera->position.x += std::sin(rad(camera->rotation.y)) * sign * movement_speed;
+        camera->position.z -= std::cos(rad(camera->rotation.y)) * sign * movement_speed;
 
         // Left to Right Movement
         sign = 0.0f;
         if (keys[sf::Keyboard::D]) {sign =  1.0f;}
         if (keys[sf::Keyboard::A]) {sign = -1.0f;}
-        camera->position.x += std::sin(camera->yRotation + 1.5708) * sign * movement_speed;
-        camera->position.z += std::cos(camera->yRotation + 1.5708) * sign * movement_speed;
+        camera->position.x += std::cos(rad(camera->rotation.y)) * sign * movement_speed; // Sin + 90 = Cos
+        camera->position.z += std::sin(rad(camera->rotation.y)) * sign * movement_speed; // Cos + 90 = - Sin
 
         // Up and Down movement
         if (keys[sf::Keyboard::Space]) {camera->position.y += movement_speed;}

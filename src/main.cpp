@@ -21,12 +21,17 @@ std::chrono::microseconds duration;
 
 void pre_loop_setup() {
     // Window init
-    window.create(sf::VideoMode::getDesktopMode(), "Genetic Evolution Simulator");
+    sf::ContextSettings settings;
+    settings.depthBits = 24;
+
+    window.create(sf::VideoMode::getDesktopMode(), "Genetic Evolution Simulator", sf::Style::Default, settings);
     window.setMouseCursorVisible(false);
+    window.setActive(true);
+    camera.setPerspectiveProjection(90, 0.1, 100);
 
     // Camera / World init 
     camera.position = {5, 5, 0};
-    camera.xRotation = -0.44;
+    camera.rotation.x = -0.44;
     
     // Mouselock to center screen
     sf::Vector2i windowCenter(window.getSize().x / 2, window.getSize().y / 2);
@@ -36,8 +41,8 @@ void pre_loop_setup() {
 void end_loop_func() {
     // END LOOP MOUSE LOCK
     mouse.read();
-    camera.yRotation += mouse.drY;
-    camera.xRotation = clamp(camera.xRotation + mouse.drX, -1.5708, 1.5708);
+    camera.rotation.y = fmod(camera.rotation.y + mouse.drY + 360, 360.0);
+    camera.rotation.x = clamp(camera.rotation.x + mouse.drX, -90, 90);
 };
 
 void event_handler() {
@@ -59,8 +64,7 @@ int main() {
     pre_loop_setup();
 
     // Pre-loop logic
-    float t = 0;
-    Cube ground = Cube({0,-1,0},{50,1,50},{0,0,0},sf::Color(125, 117, 107));
+    Cube ground = Cube({0,-1,0},{100,1,100},{0,0,0},sf::Color(125, 117, 107));
     camera.objs.push_back(ground);
 
     Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(0, 255, 0));
@@ -71,12 +75,9 @@ int main() {
     // Mainloop
     while (window.isOpen()) {
         startTime = std::chrono::high_resolution_clock::now();
-        window.clear(camera.sky);
+        window.clear(camera.skyColour);
 
         // PRE-EVENT LOGIC
-
-        if (keyboard.key(sf::Keyboard::Q)) {camera.objs[0].rotation.x -= 0.1;}
-        if (keyboard.key(sf::Keyboard::E)) {camera.objs[0].rotation.x += 0.1;}
         //
 
         camera.render();
@@ -88,7 +89,9 @@ int main() {
         end_loop_func();
         stopTime = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime);
-        if (DEBUG == true) { debug_screen(window, camera, duration); } 
+        window.pushGLStates();
+        if (DEBUG == true) {debug_screen(window, camera, duration);} 
+        window.popGLStates(); // Test window.resetGLStates()
         window.display();
     }
 };

@@ -5,7 +5,7 @@ for %%f in (%1) do (
 
 rem Build using local sfml
 g++ -c ./src/%filename%.cpp -ISFML-2.6.0/include -Iinclude
-g++ %filename%.o -o %filename% -LSFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system
+g++ %filename%.o -o %filename% -LSFML-2.6.0/lib -lsfml-graphics -lsfml-window -lsfml-system -lopengl32
 
 if "%filename%" == "main" (
     set "a=build"

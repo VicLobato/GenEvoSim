@@ -2,7 +2,7 @@
 
 class Mouse {
     public:
-        float sensitivity = 0.75;
+        float sensitivity = 10;
         bool invertY = false;
         sf::RenderWindow *window; // Pointer reference to SFML window for reading mouse
 
