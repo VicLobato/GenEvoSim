@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "matrix.hpp"
+#include "maths/matrix.hpp"
 #include <vector>
 #include <cmath>    
 

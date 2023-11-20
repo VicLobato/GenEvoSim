@@ -47,10 +47,10 @@ void draw_text(sf::RenderWindow& window, int x, int y, std::string string, sf::C
     window.draw(text);
 };
 
-void debug_screen(sf::RenderWindow& window, Camera camera, std::chrono::microseconds duration) {
-    std::string debug_string1 = "Frame: " + round(duration.count(), 2) + "ms";
+void debug_screen(sf::RenderWindow& window, Camera camera, int duration) {
+    std::string debug_string1 = "Frame: " + round(duration, 2) + "ms";
     std::string debug_string2 = "Objs: " + std::to_string(camera.objs.size());
-    std::string debug_string3 = "FPS: " + std::to_string(1000000 / (duration.count() + 1));
+    std::string debug_string3 = "FPS: " + std::to_string(1000 / (duration + 1));
     draw_text(window, 0, 0, debug_string1, sf::Color::Black, 30, sf::Color::Red);
     draw_text(window, 0, 40, debug_string2, sf::Color::Black, 30, sf::Color::Green);
     draw_text(window, 0, 80, debug_string3, sf::Color::Black, 30, sf::Color::Blue);

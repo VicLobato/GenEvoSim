@@ -1,8 +1,8 @@
-#include "graphics/graphics.hpp"
+#include "engine/graphics.hpp"
+#include "engine/physics.hpp"
 #include "debug/text.hpp"
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
-#include <chrono>
 
 bool DEBUG = true;
 
@@ -15,9 +15,9 @@ Keyboard keyboard = Keyboard(&camera);
 Mouse mouse = Mouse(&window);
 
 // TIMING
-std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
-std::chrono::time_point<std::chrono::high_resolution_clock> stopTime;
-std::chrono::microseconds duration;
+sf::Clock frameClock;
+sf::Time elapsed;
+int duration = 1;
 
 void pre_loop_setup() {
     // Window init
@@ -69,22 +69,25 @@ int main() {
     Cube ground = Cube({0,-1,0},{100,1,100},{0,0,0},sf::Color(125, 117, 107));
     camera.objs.push_back(ground);
 
-    Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(255, 50, 0));
-    camera.objs.push_back(c1);
-    Cube c2 = Cube({0,0,0},{1,1,1},{0,0,0},sf::Color(0, 255, 50));
+    //Cube c1 = Cube({1,0,0},{1,1,1},{0,0,0},sf::Color(255, 50, 0));
+    //camera.objs.push_back(c1);
+    Cube c2 = Cube({0,3,0},{1,1,1},{0,0,0},sf::Color(0, 255, 50));
     camera.objs.push_back(c2);
-    Cube c3 = Cube({0,1,0},{1,1,1},{0,0,0},sf::Color(50, 0, 255));
+    Cube c3 = Cube({0,1.5,0},{1,1,1},{0,0,0},sf::Color(50, 0, 255));
     camera.objs.push_back(c3);
 
 
     // Mainloop
     while (window.isOpen()) {
-        startTime = std::chrono::high_resolution_clock::now();
+        frameClock.restart();
         window.clear(camera.skyColour);
 
         // PRE-EVENT LOGIC
+        if (keyboard.key(sf::Keyboard::Num1)) {camera.objs[2].position.y += 0.1;}
+        if (keyboard.key(sf::Keyboard::Num2)) {camera.objs[2].position.y -= 0.1;}
         //
 
+        collisionDetection(camera.objs);
         camera.render();
         event_handler();
 
@@ -92,11 +95,12 @@ int main() {
         //
 
         end_loop_func();
-        stopTime = std::chrono::high_resolution_clock::now();
-        duration = std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime);
         window.pushGLStates();
         if (DEBUG == true) {debug_screen(window, camera, duration);} 
         window.popGLStates(); // Test window.resetGLStates()
         window.display();
+
+        elapsed = frameClock.getElapsedTime();
+        duration = static_cast<int>(elapsed.asMilliseconds());
     }
 };

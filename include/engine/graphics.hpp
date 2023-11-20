@@ -1,6 +1,6 @@
 #pragma once
-#include "matrix.hpp"
 #include "cube.hpp"
+#include "maths/matrix.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 #include <vector>
@@ -78,17 +78,18 @@ class Camera {
         glRotatef( rotation.z,0.0,0.0,1.0);
         glTranslatef(-position.x, -position.y, -position.z);
 
+        std::vector<int> indices = {
+            2,3,1,0,
+            4,5,7,6,
+            0,1,5,4,
+            3,2,6,7,
+            4,6,2,0,
+            1,3,7,5
+        };
+
         // Iterate over the cubes and draw them
         for (const auto &cube : objs) {
             std::vector<sf::Vector3f> coords = cube.points(); // The corners used for screen-space
-            std::vector<int> indices = {
-                2,3,1,0,
-                4,5,7,6,
-                0,1,5,4,
-                3,2,6,7,
-                4,6,2,0,
-                1,3,7,5
-            };
 
             glPushMatrix();
             for (int i=0; i<24; i+=4) {
