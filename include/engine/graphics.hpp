@@ -1,30 +1,26 @@
 #pragma once
 #include "cube.hpp"
 #include "maths/matrix.hpp"
+#include "maths/vector.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 #include <vector>
 #include <cmath>
 
-float distance(const sf::Vector3f a, const sf::Vector3f b) {
-    const float x = a.x - b.x;
-    const float y = a.y - b.y;
-    const float z = a.z - b.z;
-    return std::sqrt(x*x + y*y + z*z);
-}
-
 class Camera {
     public:
-        sf::Vector3f position = {0, 0, 0};
-        sf::Vector3f rotation = {0, 0, 0}; // Euler angles
+        sf::Vector3f position = {0, 0, 0}; // Camera position
+        sf::Vector3f rotation = {0, 0, 0}; // Rotation in Euler angles
 
-        sf::Color skyColour = {74, 143, 168};
+        sf::Color skyColour = {74, 143, 168}; // Arbitrary background colour
 
         std::vector<Cube> objs; // List of world objects
         sf::RenderWindow *window; // Pointer reference to SFML window for rendering
 
+    // Constructor gets window pointer for rendering
     Camera(sf::RenderWindow *_window) : window(_window) {}
 
+    // GLUT depreciated, setting glFrustum manually
     void setPerspectiveProjection(float fov, float nearPlane, float farPlane) {
         glEnable(GL_DEPTH_TEST);
         // glDepthFunc(GL_LEQUAL);
@@ -37,6 +33,7 @@ class Camera {
         float f = 1.0f / tan(fov * 0.5f);
         float rangeInv = 1.0f / (nearPlane - farPlane);
 
+        // Set corners manually
         glFrustum(-aspectRatio * nearPlane * f, aspectRatio * nearPlane * f, -nearPlane * f, nearPlane * f, nearPlane, farPlane);
         glMatrixMode(GL_MODELVIEW);
     }
@@ -44,19 +41,15 @@ class Camera {
     // Essentially adjust colour between 100% and 50% depending on angle relative to surface
     sf::Color globalIllumination(sf::Color rawColour, sf::Vector3f p1, sf::Vector3f p2, sf::Vector3f p3) {
         // Lower and upper illumination values
-        float lumLow = 0.5;
-        float lumHigh = 1;
+        float lumLow = 0.5; // How bright it'll be when facing perfectly down
+        float lumHigh = 1; // How bright it'll be when facing perfectly up
 
         sf::Vector3f v1 = p2 - p1;
         sf::Vector3f v2 = p3 - p1;
 
-        sf::Vector3f normal = sf::Vector3f(
-            (v1.y * v2.z) - (v1.z * v2.y),
-            (v1.z * v2.x) - (v1.x * v2.z),
-            (v1.x * v2.y) - (v1.y * v2.x)
-        );
+        sf::Vector3f normal = crossProduct(v1, v2);
 
-        float cos = 0.5 + (normal.y / distance(normal, {0, 0, 0})) / 2;
+        float cos = 0.5 + (normal.y / length(normal)) / 2;
         float scalar = lumLow + cos * (lumHigh - lumLow);// DO CALCULATIONS
 
         sf::Color colourOut = {
@@ -68,16 +61,21 @@ class Camera {
         return colourOut;
     }
 
+    // Do all the main rendering
     void render() {
+        // Initialise opengl parameters
         glMatrixMode(GL_MODELVIEW);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
         
+        // Rotate camera
         glRotatef(-rotation.x,1.0,0.0,0.0);
         glRotatef( rotation.y,0.0,1.0,0.0);
         glRotatef( rotation.z,0.0,0.0,1.0);
+        // Offset by inverse position - puts camera at perceived origin
         glTranslatef(-position.x, -position.y, -position.z);
 
+        // Each row is a face, each number an index of the cube's points
         std::vector<int> indices = {
             2,3,1,0,
             4,5,7,6,
@@ -100,6 +98,7 @@ class Camera {
 
                 sf::Color adjustedColour = globalIllumination(cube.colour, p1, p2, p3);
 
+                // Using quads because of better performance
                 glBegin(GL_QUADS);
                 glColor3ub(adjustedColour.r, adjustedColour.g, adjustedColour.b);
                 glVertex3f(p1.x, p1.y, p1.z);
