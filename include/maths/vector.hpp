@@ -57,7 +57,3 @@ sf::Vector3f perpendicular(const sf::Vector3f& v) {
 
     return cross;
 }
-
-sf::Vector3f tripleProduct(const sf::Vector3f& v1, const sf::Vector3f& v2, const sf::Vector3f& v3) {
-    return crossProduct(v1, crossProduct(v2, v3));
-}
