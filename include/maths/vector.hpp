@@ -51,3 +51,31 @@ sf::Vector3f normalise(const sf::Vector3f& v) {
 
     return sf::Vector3f(v.x / len, v.y / len, v.z / len);
 }
+
+// Find furthest point along direction vector
+int furthestAlong(const std::vector<sf::Vector3f>& points, sf::Vector3f dir) {
+    // Start with the first points distance
+    float maxDist = dotProduct(dir, points[0]);
+    int index = 0;
+    // Iterate over every point
+    for (int i = 1; i < points.size(); i++) {
+        float product = dotProduct(dir, points[i]);
+        if (product > maxDist) { // If new point is further, update distance and index
+            maxDist = product;
+            index = i;
+        }
+    }
+    return index;
+}
+
+// Support function
+sf::Vector3f support(const std::vector<sf::Vector3f>& p1,
+                     const std::vector<sf::Vector3f>& p2, sf::Vector3f d) {
+    
+    // Find furthest point along opposing vectors for each set
+    int i = furthestAlong(p1,  d);
+    int j = furthestAlong(p2, -d);
+
+    // Minkowski difference
+    return (p1[i] - p2[j]);
+}

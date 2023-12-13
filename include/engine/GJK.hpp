@@ -1,8 +1,15 @@
 #pragma once
 #include <cmath>
 #include <vector>
+#include <iostream>
+#include "engine/EPA.hpp"
 #include <SFML/Graphics.hpp>
 #include "maths/vector.hpp"
+
+// https://github.com/kevinmoran/GJK/blob/master/GJK.h
+// Refactor of ^
+
+#define GJK_MAX_ITER 64
 
 // For Centre Of Mass
 sf::Vector3f averagePoint(const std::vector<sf::Vector3f>& points) {
@@ -14,35 +21,6 @@ sf::Vector3f averagePoint(const std::vector<sf::Vector3f>& points) {
     }
     // And dividing by the number of points
     return sum / static_cast<float>(points.size());
-}
-
-
-// Find furthest point along direction vector
-int furthestAlong(const std::vector<sf::Vector3f>& points, sf::Vector3f dir) {
-    // Start with the first points distance
-    float maxDist = dotProduct(dir, points[0]);
-    int index = 0;
-    // Iterate over every point
-    for (int i = 1; i < points.size(); i++) {
-        float product = dotProduct(dir, points[i]);
-        if (product > maxDist) { // If new point is further, update distance and index
-            maxDist = product;
-            index = i;
-        }
-    }
-    return index;
-}
-
-// Support function
-sf::Vector3f support(const std::vector<sf::Vector3f>& p1,
-                     const std::vector<sf::Vector3f>& p2, sf::Vector3f d) {
-    
-    // Find furthest point along opposing vectors for each set
-    int i = furthestAlong(p1,  d);
-    int j = furthestAlong(p2, -d);
-
-    // Minkowski difference
-    return (p1[i] - p2[j]);
 }
 
 // Triangle case
@@ -148,8 +126,7 @@ bool GJK(const std::vector<sf::Vector3f>& p1,
     int simplexIndex = 2;
 
     // Perform iterative search
-    // 64 is arbitrary - it is a max iteration value for convergence
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < GJK_MAX_ITER; i++) {
         a = support(p1, p2, dir);
         // Check if origin is outside of the simplex
         if (dotProduct(a, dir) < 0) {
@@ -161,7 +138,8 @@ bool GJK(const std::vector<sf::Vector3f>& p1,
         if (simplexIndex == 3) {
             simplex3(a, b, c, d, dir);
         } else if (simplex4(a, b, c, d, dir)) {
-            // mtv = EPA(a, b, c, d, coll1, coll2);
+            mtv = EPA(a, b, c, d, p1, p2);
+            std::cout << "Minimum Translation Vector (mtv): " << mtv.x << ", " << mtv.y << ", " << mtv.z << std::endl;
             return true;
         }
     }

@@ -67,7 +67,6 @@ void event_handler() {
 int main() {
     // Just to verify program is running
     std::cout << "working\n";
-    std::cout << "You need to implement EPA\n";
 
     pre_loop_setup();
 
